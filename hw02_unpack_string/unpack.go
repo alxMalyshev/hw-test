@@ -10,26 +10,27 @@ import (
 var ErrInvalidString = errors.New("invalid string")
 
 func Unpack(s string) (string, error) {
-
-	if s != "" && !unicode.IsDigit(rune(s[0])) {
-		var str string
-
+	var builder strings.Builder
+	switch {
+	case len(s) > 0 && !unicode.IsDigit(rune(s[0])):
 		for _, char := range s {
-
 			if unicode.IsDigit(char) {
-				repeart, _ := strconv.Atoi(string(char))
-				if repeart == 0 {
-					str = str[:len(str)-1]
+				repeat, _ := strconv.Atoi(string(char))
+				str := builder.String()
+				if repeat == 0 {
+					builder.Reset()
+					builder.WriteString(str[:len(str)-1])
 				} else {
-					str = str + strings.Repeat(str[len(str)-1:], repeart-1)
+					builder.WriteString(strings.Repeat(str[len(str)-1:], repeat-1))
 				}
 			} else {
-				str += string(char)
+				builder.WriteString(string(char))
 			}
 		}
-		return str, nil
-	} else if s != "" && unicode.IsDigit(rune(s[0])) {
+		return builder.String(), nil
+	case len(s) > 0 && unicode.IsDigit(rune(s[0])):
 		return "", ErrInvalidString
+	default:
+		return "", nil
 	}
-	return "", nil
 }
