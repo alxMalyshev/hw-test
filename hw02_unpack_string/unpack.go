@@ -13,12 +13,18 @@ func Unpack(s string) (string, error) {
 	var builder strings.Builder
 	var lastState string
 	val := []rune(s)
+	const (
+		statusChar      = "char"
+		statusBackSlash = "backslash"
+		statusNumber    = "num"
+	)
 	switch {
 	case len(val) > 0 && !unicode.IsDigit(val[0]):
 		for i := 0; i <= len(val)-1; i++ {
 			switch {
 			case unicode.IsDigit(val[i]):
-				if lastState == "char" {
+				switch {
+				case lastState == statusChar:
 					repeat, _ := strconv.Atoi(string(val[i]))
 					if repeat == 0 {
 						str := []rune(builder.String())
@@ -27,25 +33,25 @@ func Unpack(s string) (string, error) {
 					} else {
 						builder.WriteString(strings.Repeat(string(val[i-1]), repeat-1))
 					}
-				} else if lastState == "backslash" {
+				case lastState == statusBackSlash:
 					builder.WriteString(string(val[i]))
-					lastState = "char"
+					lastState = statusChar
 					continue
-				} else {
+				default:
 					return "", ErrInvalidString
 				}
-				lastState = "num"
+				lastState = statusNumber
 			case string(val[i]) == `\`:
-				if lastState == "backslash" {
+				if lastState == statusBackSlash {
 					builder.WriteString(string(val[i]))
-					lastState = "char"
+					lastState = statusChar
 				} else {
-					lastState = "backslash"
+					lastState = statusBackSlash
 					continue
 				}
 			default:
 				builder.WriteString(string(val[i]))
-				lastState = "char"
+				lastState = statusChar
 			}
 		}
 		return builder.String(), nil
