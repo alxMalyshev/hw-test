@@ -27,7 +27,7 @@ func Unpack(s string) (string, error) {
 				case lastState == statusChar:
 					repeat, err := strconv.Atoi(string(val[i]))
 					if err != nil {
-						return "", errors.New("Converting Error")
+						return "", errors.New("converting error")
 					}
 					if repeat == 0 {
 						str := []rune(builder.String())
