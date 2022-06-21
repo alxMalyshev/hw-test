@@ -25,7 +25,10 @@ func Unpack(s string) (string, error) {
 			case unicode.IsDigit(val[i]):
 				switch {
 				case lastState == statusChar:
-					repeat, _ := strconv.Atoi(string(val[i]))
+					repeat, err := strconv.Atoi(string(val[i]))
+					if err != nil {
+						return errors.New("Converting Error")
+					}
 					if repeat == 0 {
 						str := []rune(builder.String())
 						builder.Reset()
