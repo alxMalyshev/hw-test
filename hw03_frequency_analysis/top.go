@@ -1,13 +1,9 @@
 package hw03frequencyanalysis
 
 import (
-
-	// "regexp"
 	"sort"
 	"strings"
 )
-
-// var whiteSpace = regexp.MustCompile(`\s`)
 
 type Counter struct {
 	FrequencyAnalysis map[string]int
@@ -20,39 +16,53 @@ func NewCounter() *Counter {
 }
 
 func (c *Counter) Count(key string) {
-	if _, ok := c.FrequencyAnalysis[key]; ok {
+	switch _, ok := c.FrequencyAnalysis[key]; ok {
+	case true:
 		c.FrequencyAnalysis[key]++
-	} else {
+	default:
 		c.FrequencyAnalysis[key] = 1
 	}
 }
 
 func (c *Counter) Sort() []string {
+	capacity := 10
 	sliceOfWords := make([]string, 0)
+	result := make([]string, 0)
 
 	for word := range c.FrequencyAnalysis {
 		sliceOfWords = append(sliceOfWords, word)
 	}
 
-	sort.Strings(sliceOfWords)
-
 	sort.Slice(sliceOfWords, func(i, j int) bool {
 		return c.FrequencyAnalysis[sliceOfWords[i]] > c.FrequencyAnalysis[sliceOfWords[j]]
 	})
 
-	if len(sliceOfWords) < 10 {
-		return sliceOfWords
-	} else {
-		return sliceOfWords[:10]
+	if len(sliceOfWords) < capacity {
+		capacity = len(sliceOfWords)
 	}
+	// TODO It is ugly, but it works =)
+	for i := 0; i <= capacity-1; {
+		tempSlice := []string{}
+		freq := c.FrequencyAnalysis[sliceOfWords[i]]
+		for _, val := range sliceOfWords[i:capacity] {
+			if c.FrequencyAnalysis[val] == freq {
+				tempSlice = append(tempSlice, val)
+			}
+		}
+		sort.Strings(tempSlice)
+		result = append(result, tempSlice...)
+		i += len(tempSlice)
+	}
+	return result
 }
 
 func Top10(s string) []string {
 	counter := NewCounter()
-	// slice := whiteSpace.Split(s, -1)
-	slice := strings.Fields(s)
-	for _, word := range slice {
-		counter.Count(word)
+	if s != "" {
+		for _, word := range strings.Fields(s) {
+			counter.Count(word)
+		}
+		return counter.Sort()
 	}
-	return counter.Sort()
+	return nil
 }
