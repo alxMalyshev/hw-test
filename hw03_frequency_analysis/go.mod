@@ -1,4 +1,4 @@
-module github.com/alxMalyshev/hw03_frequency_analysis
+module github.com/alxMalyshev/hw-test/w03_frequency_analysis
 
 go 1.16
 

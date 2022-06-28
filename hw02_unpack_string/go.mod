@@ -1,4 +1,4 @@
-module github.com/alxMalyshev/hw02_unpack_string
+module github.com/alxMalyshev/hw-test/hw02_unpack_string
 
 go 1.16
 

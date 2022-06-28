@@ -16,18 +16,13 @@ func NewCounter() *Counter {
 }
 
 func (c *Counter) Count(key string) {
-	switch _, ok := c.FrequencyAnalysis[key]; ok {
-	case true:
 		c.FrequencyAnalysis[key]++
-	default:
-		c.FrequencyAnalysis[key] = 1
-	}
 }
 
 func (c *Counter) Sort() []string {
 	capacity := 10
-	sliceOfWords := make([]string, 0)
-	result := make([]string, 0)
+	sliceOfWords := make([]string, 0, 10)
+	result := make([]string, 0, 10)
 
 	for word := range c.FrequencyAnalysis {
 		sliceOfWords = append(sliceOfWords, word)
