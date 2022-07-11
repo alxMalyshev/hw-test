@@ -11,35 +11,29 @@ type List interface {
 }
 
 type ListItem struct {
-	Value interface{}
-	Next  *ListItem
-	Prev  *ListItem
+	Value      interface{}
+	Next, Prev *ListItem
 }
 
 type list struct {
-	// List ListItem
-	len int
-	front *ListItem
-	back *ListItem
+	// List
+	len         int
+	front, back *ListItem
 }
 
 func NewList() List {
 	return new(list)
 }
 
-func (l *list) Len() int { return l.len }
-
-func (l *list) Front() *ListItem {
-	
-	return
-}
-func (l *list) Back() *ListItem {return}
+func (l *list) Len() int         { return l.len }
+func (l *list) Front() *ListItem { return l.front }
+func (l *list) Back() *ListItem  { return l.back }
 
 func (l *list) PushFront(v interface{}) *ListItem {
 	newItem := &ListItem{
 		Value: v,
 	}
-	if l.front == nil {
+	if l.front == nil && l.back == nil {
 		l.front = newItem
 		l.back = newItem
 	} else {
@@ -47,10 +41,65 @@ func (l *list) PushFront(v interface{}) *ListItem {
 		l.front.Prev = newItem
 		l.front = newItem
 	}
-	l.len ++
+	l.len++
 	return l.front
 }
 
-func (l *list) PushBack(v interface{}) *ListItem {}
-func (l *list) Remove(i *ListItem) {}
-func (l *list) MoveToFront(i *ListItem) {}
+func (l *list) PushBack(v interface{}) *ListItem {
+	newItem := &ListItem{
+		Value: v,
+	}
+	if l.back == nil && l.front == nil {
+		l.front = newItem
+		l.back = newItem
+	} else {
+		newItem.Prev = l.back
+		l.back.Next = newItem
+		l.back = newItem
+	}
+	l.len++
+	return l.back
+}
+
+func (l *list) Remove(i *ListItem) {
+	if i.Prev == i.Next {
+		return
+	} else {
+		prevItem := i.Prev
+		nextItem := i.Next
+		switch {
+		case l.front == i:
+			l.front = nextItem
+			nextItem.Prev = nil
+		case l.back == i:
+			l.back = prevItem
+			prevItem.Next = nil
+		default:
+			prevItem.Next = nextItem
+			nextItem.Prev = prevItem
+		}
+		i = nil
+		l.len--
+	}
+}
+func (l *list) MoveToFront(i *ListItem) {
+	if l.front != i {
+		prevItem := i.Prev
+		nextItem := i.Next
+
+		i.Prev = nil
+		i.Next = l.front
+		l.front = i
+
+		if l.back == i {
+			l.back = prevItem
+			l.back.Next = nil
+		} else {
+			prevItem.Next = nextItem.Prev
+			nextItem.Prev = prevItem.Next
+		}
+	} else {
+		return
+	}
+
+}
