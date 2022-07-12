@@ -37,12 +37,12 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 	if item, ok := l.items[key]; ok {
 		l.queue.MoveToFront(value)
 		item.Value = value
-		return true
 	} else {
-		
+		newListItem := l.queue.PushFront(value)
+		l.items[key] = newListItem
 	}
-
 	return true
 }
+
 func (l *lruCache) Get(key Key) bool {return}
 func (l *lruCache) Clear() {return}
