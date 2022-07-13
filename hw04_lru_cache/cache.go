@@ -1,8 +1,5 @@
 package hw04lrucache
 
-import (
-	"github.com/alxMalyshev/hw-test/hw04_lru_cache/list"
-)
 
 type Key string
 
@@ -15,8 +12,8 @@ type Cache interface {
 type lruCache struct {
 	// Cache // Remove me after realization.
 	capacity int
-	queue    list.List
-	items    map[Key]*list.ListItem
+	queue    List
+	items    map[Key]*ListItem
 }
 
 type cacheItem struct {
@@ -27,22 +24,43 @@ type cacheItem struct {
 func NewCache(capacity int) *lruCache {
 	return &lruCache{
 		capacity: capacity,
-		queue:    list.NewList(),
-		items:    make(map[Key]*list.ListItem, capacity),
+		queue:    NewList(),
+		items:    make(map[Key]*ListItem, capacity),
 	}
 
 }
 
 func (l *lruCache) Set(key Key, value interface{}) bool {
 	if item, ok := l.items[key]; ok {
-		l.queue.MoveToFront(value)
+		l.queue.MoveToFront(item)
 		item.Value = value
+		return true
 	} else {
+		if l.queue.Len() > l.capacity {
+			l.Clear()
+		}
 		newListItem := l.queue.PushFront(value)
 		l.items[key] = newListItem
+		return false
 	}
-	return true
 }
 
-func (l *lruCache) Get(key Key) bool {return}
-func (l *lruCache) Clear() {return}
+func (l *lruCache) Get(key Key) (interface{}, bool) {
+	if item, ok := l.items[key]; ok {
+		l.queue.MoveToFront(item)
+		return item.Value, true
+	} else {
+		return nil, false
+	}
+}
+
+func (l *lruCache) Clear() {
+	if item := l.queue.Back(); item != nil {
+		l.queue.Remove(item)
+		for k,v := range l.items {
+			if item == v {
+				delete(l.items,k)
+			}
+		}
+	}	
+}
