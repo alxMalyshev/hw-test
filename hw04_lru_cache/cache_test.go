@@ -21,7 +21,7 @@ func TestCache(t *testing.T) {
 		require.False(t, ok)
 	})
 
-	t.Run("simple set item", func(t *testing.T){
+	t.Run("simple set item", func(t *testing.T) {
 		c := NewCache(10)
 
 		require.False(t, c.Set("test", 10))
@@ -58,7 +58,36 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(3)
+		c.Set("aaa", 10)
+		c.Set("bbb", 20)
+		c.Set("ccc", 30)
+		c.Set("ddd", 40)
+
+		val, ok := c.Get("aaa")
+		require.False(t, ok)
+		require.Nil(t, val)
+	})
+
+	t.Run("purge logic for frequently used", func(t *testing.T) {
+		c := NewCache(3)
+
+		c.Set("aaa", 10)
+		c.Set("bbb", 20)
+		c.Set("ccc", 30)
+
+		c.Get("ccc")
+		c.Get("aaa")
+		c.Get("bbb")
+
+		wasInCache := c.Set("ccc", 300)
+		require.True(t, wasInCache)
+
+		c.Set("ddd", 40)
+
+		val, ok := c.Get("aaa")
+		require.False(t, ok)
+		require.Nil(t, val)
 	})
 }
 
