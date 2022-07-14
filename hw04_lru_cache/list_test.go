@@ -15,7 +15,7 @@ func TestList(t *testing.T) {
 		require.Nil(t, l.Back())
 	})
 
-	t.Run("simpleAddItem", func(t *testing.T){
+	t.Run("simpleAddItem", func(t *testing.T) {
 		l := NewList()
 
 		l.PushFront(1)
@@ -24,7 +24,7 @@ func TestList(t *testing.T) {
 		require.Equal(t, 3, l.Len())
 	})
 
-	t.Run("simpleGetItem", func(t *testing.T){
+	t.Run("simpleGetItem", func(t *testing.T) {
 		l := NewList()
 
 		l.PushFront(1)
@@ -34,7 +34,7 @@ func TestList(t *testing.T) {
 		require.Equal(t, 100, l.Back().Value)
 	})
 
-	t.Run("simpleRemoveItem", func(t *testing.T){
+	t.Run("simpleRemoveItem", func(t *testing.T) {
 		l := NewList()
 
 		l.PushFront(1)
@@ -46,7 +46,7 @@ func TestList(t *testing.T) {
 		require.Equal(t, 2, l.Len())
 	})
 
-	t.Run("simpleMoveToFront", func(t *testing.T){
+	t.Run("simpleMoveToFront", func(t *testing.T) {
 		l := NewList()
 
 		l.PushFront(1)
@@ -86,7 +86,7 @@ func TestList(t *testing.T) {
 		l.MoveToFront(l.Back())  // [70, 80, 60, 40, 10, 30, 50]
 
 		elems := make([]int, 0, l.Len())
-		for i := l.Front(); i != nil;  {
+		for i := l.Front(); i != nil; {
 			elems = append(elems, i.Value.(int))
 			i = i.Next
 		}

@@ -4,7 +4,6 @@ import (
 	"math/rand"
 	"strconv"
 	"sync"
-
 	"testing"
 
 	"github.com/stretchr/testify/require"
