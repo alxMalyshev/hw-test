@@ -2,12 +2,14 @@ package hw05parallelexecution
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"sync/atomic"
 )
 
-var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
+var (
+	ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
+	ErrInvalidWorkerCount  = errors.New("ivalid worker count")
+)
 
 type Task func() error
 
@@ -24,29 +26,39 @@ func consumer(n int, m int, tasksChan <-chan Task) int32 {
 	var errCount int32
 	wg := sync.WaitGroup{}
 
-	fmt.Println("Channel len is:", len(tasksChan))
-
 	wg.Add(n)
 	for i := 0; i < n; i++ {
-		fmt.Println("ErrorCount is:", errCount)
 		go func() {
 			defer wg.Done()
 			for task := range tasksChan {
 				if err := task(); err != nil {
+					if atomic.LoadInt32(&errCount) >= int32(m) {
+						break
+					}
 					atomic.AddInt32(&errCount, 1)
 				}
 			}
 		}()
 	}
-	fmt.Println(atomic.LoadInt32(&errCount))
-	return atomic.LoadInt32(&errCount)
+
+	wg.Wait()
+	return errCount
 }
 
 func Run(tasks []Task, n, m int) error {
+	if n <= 0 {
+		return ErrInvalidWorkerCount
+	}
+
+	if m <= 0 {
+		m = len(tasks) + 1
+	}
+
 	errCount := consumer(n, m, producer(tasks))
+
 	if errCount >= int32(m) {
 		return ErrErrorsLimitExceeded
-	} else {
-		return nil
 	}
+
+	return nil
 }
