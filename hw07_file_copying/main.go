@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 )
 
 var (
@@ -18,5 +19,9 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// Place your code here.
+
+	err := Copy("./testdata/input.txt","./testdata/out-test.txt",100,1000000)
+	if err != nil {
+		log.Fatal("faild to copy file:", err)
+	}
 }
