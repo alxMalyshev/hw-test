@@ -2,9 +2,11 @@ package main
 
 import (
 	"errors"
-	"os"
-	"log"
 	"io"
+	"log"
+	"os"
+
+	"github.com/cheggaaa/pb"
 )
 
 var (
@@ -12,8 +14,8 @@ var (
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
 
-func fileCloser (files ...*os.File) {
-	for _,file := range files {
+func fileCloser(files ...*os.File) {
+	for _, file := range files {
 		err := file.Close()
 		if err != nil {
 			log.Fatal("error with close file ", err)
@@ -28,11 +30,21 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return err
 	}
 
+	if !fileInfo.Mode().IsRegular() {
+		return ErrUnsupportedFile
+	}
+
 	if offset > fileInfo.Size() {
 		return ErrOffsetExceedsFileSize
 	}
 
-	if limit > fileInfo.Size() {
+	if limit+offset > fileInfo.Size() {
+		if offset > 0 {
+			limit = fileInfo.Size() - offset
+		} else {
+			limit = fileInfo.Size()
+		}
+	} else if limit == 0 {
 		limit = fileInfo.Size()
 	}
 
@@ -41,23 +53,26 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		log.Fatal("faild to open file:", err)
 		return err
 	}
-	
+
 	dstFile, err := os.Create(toPath)
 	if err != nil {
-		log.Fatal("faild to create file:",err)
+		log.Fatal("faild to create file:", err)
 	}
-
 
 	_, err = srcFile.Seek(offset, io.SeekStart)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println(limit)
+	bar := pb.New64(limit).SetUnits(pb.U_BYTES)
+	bar.Start()
+
 	buf := make([]byte, limit)
-	_, err = io.ReadFull(srcFile,buf)
+	reader := bar.NewProxyReader(srcFile)
+
+	_, err = io.ReadFull(reader, buf)
 	if err != nil {
-		log.Fatal("faild to read file:", err)
+		log.Fatal("faild to read file ", err)
 	}
 
 	_, err = dstFile.Write(buf)
@@ -65,8 +80,9 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		log.Fatal("faild to write file:", err)
 	}
 
-	fileCloser(dstFile,srcFile)
+	bar.Finish()
 
+	fileCloser(dstFile, srcFile)
 
 	return nil
 }

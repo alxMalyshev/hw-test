@@ -20,8 +20,8 @@ func init() {
 func main() {
 	flag.Parse()
 
-	err := Copy("./testdata/input.txt","./testdata/out-test.txt",100,1000000)
+	err := Copy(from, to, offset, limit)
 	if err != nil {
-		log.Fatal("faild to copy file:", err)
+		log.Fatal("faild to copy file: ", err)
 	}
 }
