@@ -18,7 +18,7 @@ func fileCloser(files ...*os.File) {
 	for _, file := range files {
 		err := file.Close()
 		if err != nil {
-			log.Fatal("error with close file ", err)
+			log.Panic("error with close file ", err)
 		}
 	}
 }
@@ -26,7 +26,7 @@ func fileCloser(files ...*os.File) {
 func Copy(fromPath, toPath string, offset, limit int64) error {
 	fileInfo, err := os.Stat(fromPath)
 	if err != nil {
-		log.Fatal("error to get file info:", err)
+		log.Panic("error to get file info:", err)
 		return err
 	}
 
@@ -39,29 +39,25 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	if limit+offset > fileInfo.Size() {
-		if offset > 0 {
-			limit = fileInfo.Size() - offset
-		} else {
-			limit = fileInfo.Size()
-		}
-	} else if limit == 0 {
+		limit = fileInfo.Size() - offset
+	} else if limit == 0 || limit > fileInfo.Size() {
 		limit = fileInfo.Size()
 	}
 
 	srcFile, err := os.Open(fromPath)
 	if err != nil {
-		log.Fatal("faild to open file:", err)
+		log.Panic("faild to open file:", err)
 		return err
 	}
 
 	dstFile, err := os.Create(toPath)
 	if err != nil {
-		log.Fatal("faild to create file:", err)
+		log.Panic("faild to create file:", err)
 	}
 
 	_, err = srcFile.Seek(offset, io.SeekStart)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	bar := pb.New64(limit).SetUnits(pb.U_BYTES)
@@ -72,12 +68,12 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	_, err = io.ReadFull(reader, buf)
 	if err != nil {
-		log.Fatal("faild to read file ", err)
+		log.Panic("faild to read file ", err)
 	}
 
 	_, err = dstFile.Write(buf)
 	if err != nil {
-		log.Fatal("faild to write file:", err)
+		log.Panic("faild to write file:", err)
 	}
 
 	bar.Finish()
