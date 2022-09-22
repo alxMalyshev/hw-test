@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+)
+
 func main() {
-	// Place your code here.
+	env, err := ReadDir("./testdata/env")
+	fmt.Println(env)
+	fmt.Println(err)
 }
