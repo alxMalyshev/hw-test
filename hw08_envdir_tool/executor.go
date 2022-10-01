@@ -19,7 +19,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 		}
 	}
 
-	mainCmd := exec.Command("echo", cmd[0:]...)
+	mainCmd := exec.Command(cmd[0], cmd[1:]...)
 
 	mainCmd.Stdout = os.Stdout
 	mainCmd.Stderr = os.Stderr
