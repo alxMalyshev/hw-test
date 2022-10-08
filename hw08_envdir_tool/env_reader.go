@@ -59,11 +59,9 @@ func ReadDir(dir string) (Environment, error) {
 
 			envValue := getEnv(fileScanner)
 
-			_, ok := os.LookupEnv(file.Name())
-
 			env[file.Name()] = EnvValue{
 				Value:      envValue,
-				NeedRemove: ok,
+				NeedRemove: false,
 			}
 		} else {
 			env[file.Name()] = EnvValue{
