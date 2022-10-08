@@ -10,7 +10,6 @@ import (
 func TestRunCmd(t *testing.T) {
 	cmdArgs := []string{"./testdata/env", "/bin/bash", "./testdata/echo.sh", "arg1=1", "arg2=2"}
 
-	
 	t.Run("success exit code", func(t *testing.T) {
 		env, _ := ReadDir(cmdArgs[0])
 		exitCode := RunCmd(cmdArgs[1:], env)
