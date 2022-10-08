@@ -12,14 +12,13 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	for key, value := range env {
 		if value.NeedRemove {
 			os.Unsetenv(key)
+			continue
 		}
 
-		if value.Value != "--UNSET--" {
-			os.Setenv(key, value.Value)
-		}
+		os.Setenv(key, value.Value)
 	}
 
-	mainCmd := exec.Command(cmd[0], cmd[1:]...)
+	mainCmd := exec.Command(cmd[0], cmd[1:]...) //nolint:gosec
 
 	mainCmd.Stdout = os.Stdout
 	mainCmd.Stderr = os.Stderr

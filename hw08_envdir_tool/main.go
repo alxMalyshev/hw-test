@@ -12,6 +12,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Println(env)
+
 	exitCode := RunCmd(os.Args[2:], env)
 	if exitCode != 0 {
 		fmt.Println("error during execute command")

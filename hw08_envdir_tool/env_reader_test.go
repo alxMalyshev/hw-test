@@ -27,7 +27,7 @@ func TestReadDir(t *testing.T) {
 			NeedRemove: false,
 		},
 		"UNSET": {
-			Value:      "--UNSET--",
+			Value:      "",
 			NeedRemove: true,
 		},
 	}

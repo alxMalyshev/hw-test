@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -40,7 +41,7 @@ func ReadDir(dir string) (Environment, error) {
 	}
 
 	for _, file := range listFiles {
-		readFile, err := os.Open(dir + "/" + file.Name())
+		readFile, err := os.Open(filepath.Join(dir, file.Name()))
 		if err != nil {
 			fmt.Println("faild to", err.Error())
 			return nil, err
@@ -56,14 +57,7 @@ func ReadDir(dir string) (Environment, error) {
 			fileScanner := bufio.NewScanner(readFile)
 			fileScanner.Split(bufio.ScanLines)
 
-			var envValue string
-			func(envValue *string) {
-				for fileScanner.Scan() {
-					nullByte := bytes.Replace([]byte(fileScanner.Text()), []byte("\x00"), []byte("\n"), 1)
-					*envValue = strings.ReplaceAll(strings.TrimRight(string(nullByte), "\t "), "=", "")
-					break
-				}
-			}(&envValue)
+			envValue := getEnv(fileScanner)
 
 			_, ok := os.LookupEnv(file.Name())
 
@@ -73,7 +67,7 @@ func ReadDir(dir string) (Environment, error) {
 			}
 		} else {
 			env[file.Name()] = EnvValue{
-				Value:      "--UNSET--",
+				Value:      "",
 				NeedRemove: true,
 			}
 		}
@@ -82,4 +76,13 @@ func ReadDir(dir string) (Environment, error) {
 	}
 
 	return env, nil
+}
+
+func getEnv(fileScanner *bufio.Scanner) string {
+	var envValue string
+	fileScanner.Scan()
+	nullByte := bytes.Replace([]byte(fileScanner.Text()), []byte("\x00"), []byte("\n"), 1)
+	envValue = strings.ReplaceAll(strings.TrimRight(string(nullByte), "\t "), "=", "")
+
+	return envValue
 }
