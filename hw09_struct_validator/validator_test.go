@@ -2,6 +2,7 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	//nolint
 	"errors"
 	//nolint
 	"fmt"
@@ -84,7 +85,7 @@ func TestValidate(t *testing.T) {
 				require.NoError(t, errs)
 				return
 			}
-			if !errors.Is(errs, tt.expectedErr) { 
+			if !errors.Is(errs, tt.expectedErr) {
 				t.Fatalf("err %v is not %v", errs, tt.expectedErr)
 			}
 			// fmt.Println(errors.Unwrap(errors.Unwrap(errs)) == ErrStringLengthInvalid)
