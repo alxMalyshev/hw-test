@@ -37,7 +37,6 @@ func (v ValidationErrors) Error() string {
 }
 
 func (f *Field) processFieldByRule(ruleList []string) *ValidationError {
-
 	rules := Rules{}
 	var wrapErr error
 
@@ -111,6 +110,7 @@ func Validate(v interface{}) error {
 			return fmt.Errorf("\n\t Cause by: rule is empty")
 		}
 
+		//nolint
 		switch value.Kind() {
 		case reflect.Array, reflect.Slice:
 			for i := 0; i < value.Len(); i++ {
@@ -124,6 +124,11 @@ func Validate(v interface{}) error {
 			if err := field.processFieldByRule(rules); err.Err != nil {
 				errs = append(errs, *err)
 			}
+		default:
+			errs = append(errs, ValidationError{
+				field.Name,
+				fmt.Errorf("%w: field is not int, string or array", ErrKindValidation),
+			})
 		}
 	}
 

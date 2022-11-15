@@ -82,7 +82,6 @@ func (r *Rules) RuleIntIn(fieldValue reflect.Value) error {
 		if intRule == int(fieldValue.Int()) {
 			return nil
 		}
-
 	}
 
 	return fmt.Errorf("%w\n\tCause by: field value is not equal item of slice %s", ErrStringInInvalid, ruleList)

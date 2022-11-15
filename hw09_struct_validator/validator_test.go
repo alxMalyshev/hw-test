@@ -2,8 +2,12 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"errors"
+	//nolint
 	"fmt"
+	//nolint
 	"github.com/stretchr/testify/require"
+	//nolint
 	"testing"
 )
 
@@ -80,7 +84,11 @@ func TestValidate(t *testing.T) {
 				require.NoError(t, errs)
 				return
 			}
-			require.ErrorIs(t, errs, tt.expectedErr)
+			if !errors.Is(errs, tt.expectedErr) { 
+				t.Fatalf("err %v is not %v", errs, tt.expectedErr)
+			}
+			// fmt.Println(errors.Unwrap(errors.Unwrap(errs)) == ErrStringLengthInvalid)
+			// require.ErrorAs(t, errs, &validationError)
 		})
 	}
 }
