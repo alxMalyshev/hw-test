@@ -1,6 +1,7 @@
 package hw09structvalidator
 
 import (
+	//nolint
 	"encoding/json"
 	//nolint
 	"errors"
