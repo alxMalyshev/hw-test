@@ -69,7 +69,7 @@ func (r *Rules) RuleIntIn(fieldValue reflect.Value) error {
 	ruleList := strings.Split(r.In.(string), ",")
 
 	if len(ruleList) == 0 {
-		return fmt.Errorf("%w\n\tCause by: rule has wrong format %s", ErrStringInFormat, r.In)
+		return fmt.Errorf("%w\n\tCause by: rule has wrong format %s", ErrIntInFormat, r.In)
 	}
 
 	var intRule int
@@ -84,7 +84,7 @@ func (r *Rules) RuleIntIn(fieldValue reflect.Value) error {
 		}
 	}
 
-	return fmt.Errorf("%w\n\tCause by: field value is not equal item of slice %s", ErrStringInInvalid, ruleList)
+	return fmt.Errorf("%w\n\tCause by: field value is not equal item of slice %s", ErrIntInInvalid, ruleList)
 }
 
 func (r *Rules) RuleStringIn(fieldValue reflect.Value) error {

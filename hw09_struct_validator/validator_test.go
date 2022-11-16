@@ -1,16 +1,11 @@
 package hw09structvalidator
 
 import (
-	//nolint
 	"encoding/json"
-	//nolint
-	"errors"
-	//nolint
 	"fmt"
-	//nolint
-	"github.com/stretchr/testify/require"
-	//nolint
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -47,7 +42,7 @@ type (
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		in          interface{}
-		expectedErr error
+		expectedErr []error
 	}{
 		{
 			User{
@@ -73,7 +68,41 @@ func TestValidate(t *testing.T) {
 				Phones:  []string{"89876543212", "89876543212"},
 				meta:    nil,
 			},
-			ErrStringLengthInvalid,
+			[]error{ErrStringLengthInvalid},
+		},
+		{
+			User{
+				ID:      "111111111111111111111111111111111111",
+				Name:    "Holder",
+				Age:     55,
+				Email:   "test@test.ru",
+				Role:    "admin,stuff",
+				RoleInt: 100,
+				Phones:  []string{"898765", "89876543212"},
+				meta:    nil,
+			},
+			[]error{ErrIntMaxInvalid, ErrStringLengthInvalid},
+		},
+		{
+			Token{
+				[]byte{1, 2, 3},
+				[]byte{1, 2, 3},
+				[]byte{1, 2, 3},
+			},
+			nil,
+		},
+		{
+			App{
+				"1.2.3.6",
+			},
+			[]error{ErrStringLengthInvalid},
+		},
+		{
+			Response{
+				401,
+				"Body: Unauthorized",
+			},
+			[]error{ErrIntInInvalid},
 		},
 	}
 
@@ -81,16 +110,17 @@ func TestValidate(t *testing.T) {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
 			t.Parallel()
+			var validationErrors ValidationErrors
 			errs := Validate(tt.in)
-			if tt.expectedErr == nil {
+			if len(tt.expectedErr) == 0 {
 				require.NoError(t, errs)
 				return
 			}
-			if !errors.Is(errs, tt.expectedErr) {
-				t.Fatalf("err %v is not %v", errs, tt.expectedErr)
+
+			require.ErrorAs(t, errs, &validationErrors)
+			for i, e := range validationErrors {
+				require.ErrorIs(t, e.Err, tt.expectedErr[i])
 			}
-			// fmt.Println(errors.Unwrap(errors.Unwrap(errs)) == ErrStringLengthInvalid)
-			// require.ErrorAs(t, errs, &validationError)
 		})
 	}
 }
