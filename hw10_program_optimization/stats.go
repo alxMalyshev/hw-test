@@ -1,12 +1,13 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
+	"bufio"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"regexp"
 	"strings"
+
+	"github.com/json-iterator/go"
 )
 
 type User struct {
@@ -18,6 +19,10 @@ type User struct {
 	Password string
 	Address  string
 }
+
+const maxCapacity = 512 * 1024
+
+var ErrInvalidEmailFormat = errors.New("invalid user email format")
 
 type DomainStat map[string]int
 
@@ -32,35 +37,35 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 type users [100_000]User
 
 func getUsers(r io.Reader) (result users, err error) {
-	content, err := ioutil.ReadAll(r)
-	if err != nil {
-		return
-	}
+	json := jsoniter.ConfigCompatibleWithStandardLibrary
+	scanner := bufio.NewScanner(r)
 
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
+	buf := make([]byte, maxCapacity)
+	scanner.Buffer(buf, maxCapacity)
+
+	var i int
+	var user User
+	for scanner.Scan() {
+		if err = json.Unmarshal(scanner.Bytes(), &user); err != nil {
+			return result, err
 		}
 		result[i] = user
+		i++
 	}
-	return
+	return result, nil
 }
 
 func countDomains(u users, domain string) (DomainStat, error) {
 	result := make(DomainStat)
 
+	domainPatern := "." + domain
 	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
-		if err != nil {
-			return nil, err
-		}
-
-		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
-			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+		if strings.HasSuffix(user.Email, domainPatern) {
+			if at := strings.IndexByte(user.Email, '@'); at > 0 {
+				result[strings.ToLower(user.Email[at+1:])]++
+			} else {
+				return nil, fmt.Errorf("%w: %v does not contains @", ErrInvalidEmailFormat, user.Email)
+			}
 		}
 	}
 	return result, nil
