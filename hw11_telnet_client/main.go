@@ -31,19 +31,21 @@ func main() {
 		log.Println("Client connected")
 	}
 
-	defer client.Close()
-
 	notifyCtx,_ :=  signal.NotifyContext(context.Background(), os.Interrupt)
+
+	errCh := make(chan error, 1)
 
 	go func(client TelnetClient){ 
 		if err := client.Send(); err != nil {
 			log.Printf("Send error: %s", err)
+			errCh <- err
 		}
 	}(client)
 
 	go func(client TelnetClient){ 
 		if err := client.Receive(); err != nil {
 			log.Printf("Reciev error: %s", err)
+			errCh <- err
 		}
 	}(client)
 
@@ -51,6 +53,8 @@ func main() {
 	select {
 	case <-notifyCtx.Done():
 		log.Printf("Closing connection...")
-	case:
+	case <- errCh:
+		log.Printf("...EOF")
+		client.Close()
 	}
 }
