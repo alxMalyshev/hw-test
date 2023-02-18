@@ -10,12 +10,9 @@ import (
 	"time"
 )
 
-var (
-	timeout = flag.Duration("timeout", 10*time.Second, "Timeout connection")
-)
+var timeout = flag.Duration("timeout", 10*time.Second, "Timeout connection")
 
 func main() {
-	
 	flag.Parse()
 
 	host := os.Args[len(os.Args)-2]
